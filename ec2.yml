@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Basic Resource
+
+Parameters:
+  Id:
+    Type: String
+    Description: The image id
+
+Resources:
+  Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !Ref Id
+      InstanceType: t2.micro
+      KeyName: cfn
+      SecurityGroups:
+        - default
+        - !Ref SSH
+  SSH:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: For Cloudformation Course
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+

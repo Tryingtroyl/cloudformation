@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  InstanceTypeChoice:
+    Description: Select the Instance Type
+    Type: String
+    AllowedValues:
+      - 't2.small'
+      - 't2.micro'
+      - 't2.nano'
+  VPCCidr:
+    Description: Enter the Cidr Block for VPC
+    Type: String
+    Default: '10.1.0.0/16'
+  PublicSubCidr:
+    Description: Enter the Cidr Block for the public subnet
+    Type: String
+    Default: '10.1.10.0/24'
+  PrivateSubCidr:
+    Description: Enter the Cidr Block for the private subnet
+    Type: String
+    Default: '10.1.50.0/24'
+  BucketName:
+    Description: The S3 Bucket Name
+    Type: String
+    Default: 'bucket-for-the-task-wg-ir'
+    
+
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCidr
+
+  MyPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-south-1a
+      MapPublicIpOnLaunch: True
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PublicSubCidr
+
+  MyPrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-south-1a
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PrivateSubCidr
+
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: ap-south-1a
+      ImageId: ami-0756a1c858554433e
+      InstanceType: !Ref InstanceTypeChoice
+      KeyName: Hygieia
+      SubnetId: !Ref MyPublicSubnet
+
+  MyBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      LifecycleConfiguration:
+        Rules:
+          - Id: Rule for logs
+            Prefix: logs
+            Status: Enabled
+            ExpirationInDays: 365
+      VersioningConfiguration:
+        Status: Enabled
